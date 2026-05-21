@@ -1,248 +1,445 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>购买上限控制 - 规则列表</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
-  <style>
-    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
-    body { background: #f5f6fa; }
-    .stat-card { border-radius: 12px; background: #fff; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-    .rule-tag { padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-    .rule-tag-regular { background: #e8f4fd; color: #1677ff; }
-    .rule-tag-activity { background: #fff7e6; color: #d46b08; }
-    .search-input { border: 1px solid #e5e6eb; border-radius: 6px; padding: 8px 12px; font-size: 14px; outline: none; transition: border 0.2s; }
-    .search-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
-    .table-header { background: #fafafa; border-bottom: 1px solid #e5e6eb; }
-    .table-header th { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #86909c; text-align: left; }
-    .table-row { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; cursor: pointer; }
-    .table-row:hover { background: #f7f8fc; }
-    .table-row td { padding: 14px 16px; font-size: 14px; color: #1d2129; }
-    .btn-primary { background: #1677ff; color: #fff; border: none; border-radius: 6px; padding: 8px 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-    .btn-primary:hover { background: #4096ff; }
-    .btn-outline { background: #fff; color: #1d2129; border: 1px solid #e5e6eb; border-radius: 6px; padding: 8px 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
-    .btn-outline:hover { border-color: #1677ff; color: #1677ff; }
-    .pagination-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e5e6eb; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: #4e5969; cursor: pointer; transition: all 0.15s; }
-    .pagination-btn:hover { border-color: #1677ff; color: #1677ff; }
-    .pagination-btn.active { background: #1677ff; border-color: #1677ff; color: #fff; }
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>购买上限控制 - 规则列表</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  body { background: #f0f2f5; margin: 0; }
+
+  /* ===== 金蝶云星瀚品牌色 ===== */
+  :root {
+    --kd-primary: #00a65a;
+    --kd-primary-hover: #00c16b;
+    --kd-primary-light: #e8f8ef;
+    --kd-bg: #f0f2f5;
+    --kd-border: #e0e2e6;
+    --kd-text: #333;
+    --kd-text-secondary: #999;
+    --kd-header-bg: #fff;
+    --kd-table-header: #f7f8fa;
+  }
+
+  /* ===== 顶部导航栏 ===== */
+  .top-nav {
+    background: #fff;
+    height: 48px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+  }
+  .top-nav-left { display: flex; align-items: center; gap: 24px; }
+  .top-nav-tenant {
+    font-size: 13px; color: var(--kd-text);
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+  }
+  .top-nav-tenant::after { content: "▾"; font-size: 10px; color: #999; }
+  .top-nav-menu { display: flex; gap: 0; }
+  .top-nav-item {
+    padding: 0 16px; font-size: 13px; color: #666;
+    cursor: pointer; line-height: 48px; position: relative;
+    transition: color 0.2s;
+  }
+  .top-nav-item:hover { color: var(--kd-text); }
+  .top-nav-item.active { color: var(--kd-primary); font-weight: 500; }
+  .top-nav-item.active::after {
+    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px;
+    height: 2px; background: var(--kd-primary);
+  }
+  .top-nav-right { display: flex; align-items: center; gap: 12px; }
+  .top-nav-search {
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 4px 10px; font-size: 12px; width: 180px; outline: none;
+    background: #f7f8fa;
+  }
+  .top-nav-icon { width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; }
+  .top-nav-icon:hover { background: #f5f5f5; }
+  .top-nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e8f8ef; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--kd-primary); cursor: pointer; }
+
+  /* ===== 左侧导航 ===== */
+  .side-nav {
+    width: 56px; background: #2b2f3a; display: flex;
+    flex-direction: column; align-items: center; padding-top: 8px; gap: 4px;
+    flex-shrink: 0;
+  }
+  .side-nav-item {
+    width: 40px; height: 40px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: #8a8f99; font-size: 18px; cursor: pointer; transition: all 0.15s;
+  }
+  .side-nav-item:hover { background: #3a3f4a; color: #fff; }
+  .side-nav-item.active { background: var(--kd-primary); color: #fff; }
+
+  /* ===== 页面主体 ===== */
+  .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ===== 面包屑 + 标签 ===== */
+  .tabs-bar {
+    background: #fff; padding: 0 20px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center; height: 40px; gap: 0;
+  }
+  .breadcrumb { font-size: 12px; color: #999; display: flex; align-items: center; gap: 6px; margin-right: 20px; }
+  .breadcrumb a { color: #666; text-decoration: none; }
+  .breadcrumb a:hover { color: var(--kd-primary); }
+  .tab {
+    padding: 0 16px; font-size: 13px; color: #666;
+    cursor: pointer; line-height: 40px; position: relative;
+    transition: color 0.2s;
+  }
+  .tab:hover { color: var(--kd-text); }
+  .tab.active { color: var(--kd-primary); }
+  .tab.active::after {
+    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px;
+    height: 2px; background: var(--kd-primary);
+  }
+
+  /* ===== 筛选区 ===== */
+  .filter-bar {
+    background: #fff; padding: 12px 20px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .filter-scheme {
+    font-size: 12px; color: var(--kd-text);
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 4px 10px; cursor: pointer; display: flex; align-items: center; gap: 4px;
+    background: #fff;
+  }
+  .filter-scheme::after { content: "▾"; font-size: 10px; color: #999; }
+  .filter-item {
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 4px 10px; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 6px; background: #fff;
+    min-width: 100px; color: var(--kd-text);
+  }
+  .filter-item::after { content: "▾"; font-size: 10px; color: #999; margin-left: auto; }
+  .filter-item:first-of-type { min-width: 160px; }
+  .filter-search {
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 4px 10px; font-size: 12px; width: 180px; outline: none;
+    margin-left: auto;
+  }
+  .filter-search::placeholder { color: #ccc; }
+  .filter-collapse { font-size: 12px; color: #666; cursor: pointer; padding: 4px 8px; }
+  .filter-collapse:hover { color: var(--kd-primary); }
+  .filter-config { font-size: 14px; color: #999; cursor: pointer; padding: 4px; }
+  .filter-config:hover { color: var(--kd-primary); }
+
+  /* ===== 操作栏 ===== */
+  .action-bar {
+    background: #fff; padding: 8px 20px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .kd-btn {
+    height: 28px; padding: 0 14px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; display: inline-flex;
+    align-items: center; gap: 4px; border: none; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .kd-btn-primary { background: var(--kd-primary); color: #fff; }
+  .kd-btn-primary:hover { background: var(--kd-primary-hover); }
+  .kd-btn-primary:active { background: #008f4c; }
+  .kd-btn-primary.has-dropdown::after { content: "▾"; font-size: 10px; margin-left: 2px; }
+  .kd-btn-outline { background: #fff; color: var(--kd-text); border: 1px solid var(--kd-border); }
+  .kd-btn-outline:hover { border-color: var(--kd-primary); color: var(--kd-primary); }
+  .kd-btn-text { background: none; color: #666; border: none; }
+  .kd-btn-text:hover { color: var(--kd-primary); }
+
+  .view-toggle { display: flex; margin-left: auto; gap: 2px; }
+  .view-btn {
+    width: 28px; height: 28px; border: 1px solid var(--kd-border);
+    background: #fff; cursor: pointer; display: flex; align-items: center;
+    justify-content: center; font-size: 14px; color: #999;
+  }
+  .view-btn:first-child { border-radius: 4px 0 0 4px; }
+  .view-btn:last-child { border-radius: 0 4px 4px 0; margin-left: -1px; }
+  .view-btn.active { background: var(--kd-primary-light); color: var(--kd-primary); border-color: var(--kd-primary); }
+
+  /* ===== 表格 ===== */
+  .table-wrap { flex: 1; overflow: auto; background: #fff; }
+  .table-header-info {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 20px; border-bottom: 1px solid var(--kd-border);
+    font-size: 12px; color: #666;
+  }
+  .table-header-info label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .table-header-info input[type="checkbox"] { accent-color: var(--kd-primary); }
+
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: var(--kd-table-header); padding: 8px 14px;
+    font-size: 12px; font-weight: 500; color: #666;
+    text-align: left; border-bottom: 1px solid var(--kd-border);
+    white-space: nowrap; position: sticky; top: 0; z-index: 1;
+  }
+  thead th:first-child { width: 40px; text-align: center; }
+  thead th:last-child { position: sticky; right: 0; background: var(--kd-table-header); }
+  tbody td {
+    padding: 10px 14px; font-size: 13px; color: var(--kd-text);
+    border-bottom: 1px solid #f0f0f0;
+  }
+  tbody td:first-child { text-align: center; }
+  tbody td:last-child { position: sticky; right: 0; background: #fff; }
+  tbody tr:hover td { background: #f7f9fc; }
+  tbody tr:hover td:last-child { background: #f7f9fc; }
+  tbody td input[type="checkbox"] { accent-color: var(--kd-primary); }
+  .link-blue { color: #1677ff; cursor: pointer; text-decoration: none; }
+  .link-blue:hover { text-decoration: underline; }
+
+  .status-tag {
+    display: inline-block; padding: 2px 8px; border-radius: 3px;
+    font-size: 12px; line-height: 1.4;
+  }
+  .status-tag-active { background: #e8f8ef; color: #00a65a; }
+  .status-tag-inactive { background: #f5f5f5; color: #999; }
+  .status-tag-pending { background: #fff7e6; color: #d46b08; }
+
+  .col-config-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+    color: #999; font-size: 14px;
+  }
+  .col-config-btn:hover { background: #e8e8e8; color: #666; }
+
+  /* ===== 分页（右上角） ===== */
+  .pagination-bar {
+    display: flex; align-items: center; justify-content: flex-end;
+    gap: 8px; padding: 10px 20px; border-top: 1px solid var(--kd-border);
+    font-size: 12px; color: #666; background: #fff;
+  }
+  .pagination-bar .total { color: #999; }
+  .pagination-bar input.page-input {
+    width: 48px; height: 24px; border: 1px solid var(--kd-border);
+    border-radius: 4px; text-align: center; font-size: 12px; outline: none;
+  }
+  .page-btn {
+    width: 24px; height: 24px; border: 1px solid var(--kd-border);
+    border-radius: 4px; background: #fff; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #666; transition: all 0.15s;
+  }
+  .page-btn:hover { border-color: var(--kd-primary); color: var(--kd-primary); }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .page-size {
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 2px 8px; font-size: 12px; cursor: pointer;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .page-size::after { content: "▾"; font-size: 10px; color: #999; }
+</style>
 </head>
 <body>
-  <!-- 顶部导航 -->
-  <div class="flex items-center justify-between px-6 py-4 bg-white border-b border-[#e5e6eb]">
-    <div class="flex items-center gap-3">
-      <h1 class="text-lg font-semibold text-[#1d2129]">购买上限控制</h1>
-      <span class="text-xs text-[#86909c] bg-[#f2f3f5] px-2 py-0.5 rounded">规则配置</span>
-    </div>
-    <div class="flex items-center gap-3">
-      <button class="btn-outline text-sm flex items-center gap-1.5">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
-        导出
-      </button>
-      <button class="btn-primary text-sm flex items-center gap-1.5">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        创建规则
-      </button>
+
+<!-- ===== 顶部导航栏 ===== -->
+<div class="top-nav">
+  <div class="top-nav-left">
+    <span class="top-nav-tenant">亚朵供应链测试</span>
+    <div class="top-nav-menu">
+      <span class="top-nav-item">首页</span>
+      <span class="top-nav-item">应用</span>
+      <span class="top-nav-item">库存管理</span>
+      <span class="top-nav-item active">销售管理</span>
     </div>
   </div>
+  <div class="top-nav-right">
+    <input class="top-nav-search" placeholder="派单" />
+    <span class="top-nav-icon">💡</span>
+    <span class="top-nav-icon">❓</span>
+    <span class="top-nav-icon" style="position:relative">
+      🔔
+      <span style="position:absolute;top:-2px;right:-4px;background:#f53f3f;color:#fff;font-size:10px;border-radius:8px;padding:0 4px;line-height:14px;min-width:14px;text-align:center;">99+</span>
+    </span>
+    <span class="top-nav-avatar">玄</span>
+  </div>
+</div>
 
-  <div class="p-6">
-    <!-- 统计卡片 -->
-    <div class="grid grid-cols-4 gap-4 mb-6">
-      <div class="stat-card">
-        <div class="text-sm text-[#86909c] mb-1">规则总数</div>
-        <div class="text-2xl font-semibold text-[#1d2129]">24</div>
+<!-- ===== 主体区域 ===== -->
+<div style="display:flex;height:calc(100vh - 48px);">
+  <!-- 左侧导航 -->
+  <div class="side-nav">
+    <div class="side-nav-item">📋</div>
+    <div class="side-nav-item active">📦</div>
+    <div class="side-nav-item">📊</div>
+    <div class="side-nav-item">📄</div>
+    <div class="side-nav-item">⚙️</div>
+    <div class="side-nav-item" style="margin-top:auto;">◀</div>
+  </div>
+
+  <!-- 页面内容 -->
+  <div class="page-content">
+    <!-- 面包屑 + 标签页 -->
+    <div class="tabs-bar">
+      <div class="breadcrumb">
+        <span>🏠</span>
+        <span>/</span>
+        <a href="#">指定派单规则列表</a>
+        <span>/</span>
+        <span style="color:#333;">购买上限控制</span>
       </div>
-      <div class="stat-card">
-        <div class="text-sm text-[#86909c] mb-1">已启用</div>
-        <div class="text-2xl font-semibold text-[#1677ff]">18</div>
-      </div>
-      <div class="stat-card">
-        <div class="text-sm text-[#86909c] mb-1">已停用</div>
-        <div class="text-2xl font-semibold text-[#86909c]">6</div>
-      </div>
-      <div class="stat-card">
-        <div class="text-sm text-[#86909c] mb-1">即将过期（7天内）</div>
-        <div class="text-2xl font-semibold text-[#f77234]">3</div>
+      <div class="tab">指定派单规则列表</div>
+      <div class="tab active">购买上限控制</div>
+    </div>
+
+    <!-- 筛选区 -->
+    <div class="filter-bar">
+      <div class="filter-scheme">常用条件过滤</div>
+      <div class="filter-item">创建时间：近30天</div>
+      <div class="filter-item">适用组织：全部</div>
+      <div class="filter-item">规则状态：全部</div>
+      <input class="filter-search" placeholder="搜索规则名称、单据编号..." />
+      <span class="filter-collapse">收起过滤 ▴</span>
+      <span class="filter-config">⚙</span>
+    </div>
+
+    <!-- 操作按钮 -->
+    <div class="action-bar">
+      <button class="kd-btn kd-btn-primary has-dropdown">新增</button>
+      <button class="kd-btn kd-btn-outline">删除</button>
+      <button class="kd-btn kd-btn-outline has-dropdown">提交</button>
+      <button class="kd-btn kd-btn-outline has-dropdown">审核</button>
+      <button class="kd-btn kd-btn-outline has-dropdown">打印</button>
+      <button class="kd-btn kd-btn-outline has-dropdown">更多</button>
+      <button class="kd-btn kd-btn-text">下查</button>
+      <button class="kd-btn kd-btn-text">上查</button>
+      <button class="kd-btn kd-btn-text">刷新</button>
+      <button class="kd-btn kd-btn-text">退出</button>
+
+      <div class="view-toggle">
+        <button class="view-btn active" title="列表视图">☰</button>
+        <button class="view-btn" title="卡片视图">▦</button>
       </div>
     </div>
 
-    <!-- 搜索 / 筛选栏 -->
-    <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
-      <div class="flex items-center gap-4 flex-wrap">
-        <div class="relative flex-1 min-w-[240px] max-w-md">
-          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86909c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-          <input class="search-input w-full pl-10" placeholder="搜索规则名称、商品 SKU..." />
-        </div>
-        <select class="search-input min-w-[130px]">
-          <option>全部规则类型</option>
-          <option>常规限购</option>
-          <option>活动限购</option>
-        </select>
-        <select class="search-input min-w-[130px]">
-          <option>全部状态</option>
-          <option>已启用</option>
-          <option>已停用</option>
-        </select>
-        <select class="search-input min-w-[130px]">
-          <option>全部门店范围</option>
-          <option>全部门店</option>
-          <option>指定门店</option>
-        </select>
-        <button class="btn-outline text-sm px-4">重置</button>
-        <button class="btn-primary text-sm px-4">查询</button>
+    <!-- 表格 -->
+    <div class="table-wrap">
+      <div class="table-header-info">
+        <label>
+          <input type="checkbox" /> 选择全部 · 共24条
+        </label>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span>共 2 页</span>
+          <span style="color:#ccc;">|</span>
+          <span class="page-size">20 条/页</span>
+        </span>
       </div>
-    </div>
 
-    <!-- 规则列表表格 -->
-    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
-      <table class="w-full">
+      <table>
         <thead>
-          <tr class="table-header">
-            <th style="width: 32px;"><input type="checkbox" class="rounded" /></th>
+          <tr>
+            <th><input type="checkbox" /></th>
+            <th>#</th>
+            <th>单据编号</th>
             <th>规则名称</th>
+            <th>规则状态</th>
             <th>商品 SKU</th>
-            <th>规则类型</th>
-            <th>控制策略</th>
-            <th>门店范围</th>
-            <th>状态</th>
+            <th>商品名称</th>
+            <th>限购上限</th>
+            <th>适用组织</th>
+            <th>有效期</th>
+            <th>创建人</th>
             <th>创建时间</th>
-            <th style="width: 130px;">操作</th>
+            <th style="width:40px;text-align:center;">
+              <span class="col-config-btn">⚙</span>
+            </th>
           </tr>
         </thead>
         <tbody>
-          <!-- 行 1: 活动限购 -->
-          <tr class="table-row">
-            <td class="text-center"><input type="checkbox" class="rounded" /></td>
-            <td class="font-medium">暑期大促-矿泉水限购</td>
-            <td class="text-[#86909c]">SKU-7201</td>
-            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
-            <td>
-              <span class="text-sm">按总量 · 限 500 件</span>
-              <div class="text-xs text-[#86909c] mt-0.5">有效期: 2026-07-01 ~ 2026-08-31</div>
-            </td>
-            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
-            <td>
-              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
-            </td>
-            <td class="text-[#86909c] text-sm">2026-05-15 14:32</td>
-            <td>
-              <div class="flex items-center gap-1">
-                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
-                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
-              </div>
-            </td>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>1</td>
+            <td><a class="link-blue" href="规则创建页.html">PUR-20260521-0001</a></td>
+            <td>暑期大促矿泉水限购</td>
+            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td>SKU-7201</td>
+            <td>矿泉水 500ml</td>
+            <td>100 件</td>
+            <td>上海匠采科技</td>
+            <td>2026-05-01 ~ 2026-06-30</td>
+            <td>玄阳(严安)</td>
+            <td>2026-05-21 10:30</td>
+            <td style="text-align:center;cursor:pointer;">⋯</td>
           </tr>
-          <!-- 行 2: 常规限购-指定门店 -->
-          <tr class="table-row">
-            <td class="text-center"><input type="checkbox" class="rounded" /></td>
-            <td class="font-medium">毛巾类商品常规限购</td>
-            <td class="text-[#86909c]">SKU-1314</td>
-            <td><span class="rule-tag rule-tag-regular">常规限购</span></td>
-            <td>
-              <span class="text-sm">按周期 · 限 200 件 / 月</span>
-              <div class="text-xs text-[#86909c] mt-0.5">适用阶段: 开业</div>
-            </td>
-            <td>
-              <span class="rule-tag rule-tag-regular">杭州西湖店</span>
-            </td>
-            <td>
-              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
-            </td>
-            <td class="text-[#86909c] text-sm">2026-05-10 09:15</td>
-            <td>
-              <div class="flex items-center gap-1">
-                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
-                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
-              </div>
-            </td>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>2</td>
+            <td><a class="link-blue" href="规则创建页.html">PUR-20260520-0003</a></td>
+            <td>纯棉毛巾限购规则</td>
+            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td>SKU-1314</td>
+            <td>纯棉毛巾</td>
+            <td>50 件</td>
+            <td>上海匠采科技</td>
+            <td>2026-05-15 ~ 2026-12-31</td>
+            <td>玄阳(严安)</td>
+            <td>2026-05-20 14:20</td>
+            <td style="text-align:center;cursor:pointer;">⋯</td>
           </tr>
-          <!-- 行 3: 活动限购-按系数 -->
-          <tr class="table-row">
-            <td class="text-center"><input type="checkbox" class="rounded" /></td>
-            <td class="font-medium">床品四件套活动限购</td>
-            <td class="text-[#86909c]">SKU-2099</td>
-            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
-            <td>
-              <span class="text-sm">按系数 · 房间数 × 3</span>
-              <div class="text-xs text-[#86909c] mt-0.5">有效期: 2026-06-01 ~ 2026-06-15</div>
-            </td>
-            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
-            <td>
-              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
-            </td>
-            <td class="text-[#86909c] text-sm">2026-05-08 16:42</td>
-            <td>
-              <div class="flex items-center gap-1">
-                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
-                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
-              </div>
-            </td>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>3</td>
+            <td><a class="link-blue" href="规则创建页.html">PUR-20260519-0007</a></td>
+            <td>床品备货限购</td>
+            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td>SKU-2099</td>
+            <td>床品四件套</td>
+            <td>200 件</td>
+            <td>上海匠采科技</td>
+            <td>2026-05-01 ~ 2026-07-31</td>
+            <td>玄阳(严安)</td>
+            <td>2026-05-19 09:15</td>
+            <td style="text-align:center;cursor:pointer;">⋯</td>
           </tr>
-          <!-- 行 4: 常规限购-已停用 -->
-          <tr class="table-row">
-            <td class="text-center"><input type="checkbox" class="rounded" /></td>
-            <td class="font-medium">高端洗护常规限购</td>
-            <td class="text-[#86909c]">SKU-4521</td>
-            <td><span class="rule-tag rule-tag-regular">常规限购</span></td>
-            <td>
-              <span class="text-sm">按固定数量 · 限 50 件</span>
-              <div class="text-xs text-[#86909c] mt-0.5">适用阶段: 筹建</div>
-            </td>
-            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
-            <td>
-              <span class="flex items-center text-sm"><span class="status-dot bg-[#c9cdd4]"></span>停用</span>
-            </td>
-            <td class="text-[#86909c] text-sm">2026-04-28 11:20</td>
-            <td>
-              <div class="flex items-center gap-1">
-                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
-                <button class="px-2 py-1 text-sm text-[#00b42a] hover:bg-[#e8f8e8] rounded">启用</button>
-              </div>
-            </td>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>4</td>
+            <td><a class="link-blue" href="规则创建页.html">PUR-20260518-0002</a></td>
+            <td>高端洗护套装限购</td>
+            <td><span class="status-tag status-tag-inactive">已停用</span></td>
+            <td>SKU-4521</td>
+            <td>高端洗护套装</td>
+            <td>30 件</td>
+            <td>上海匠采科技</td>
+            <td>2026-04-01 ~ 2026-05-15</td>
+            <td>玄阳(严安)</td>
+            <td>2026-04-28 16:40</td>
+            <td style="text-align:center;cursor:pointer;">⋯</td>
           </tr>
-          <!-- 行 5: 活动限购-即将过期 -->
-          <tr class="table-row">
-            <td class="text-center"><input type="checkbox" class="rounded" /></td>
-            <td class="font-medium">茶包类商品活动限购</td>
-            <td class="text-[#86909c]">SKU-3317</td>
-            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
-            <td>
-              <span class="text-sm">按周期 · 限 100 件 / 日</span>
-              <div class="text-xs text-[#f77234] mt-0.5">⏰ 即将过期: 2026-05-22</div>
-            </td>
-            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
-            <td>
-              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
-            </td>
-            <td class="text-[#86909c] text-sm">2026-04-20 10:08</td>
-            <td>
-              <div class="flex items-center gap-1">
-                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
-                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
-              </div>
-            </td>
+          <tr>
+            <td><input type="checkbox" /></td>
+            <td>5</td>
+            <td><a class="link-blue" href="规则创建页.html">PUR-20260517-0005</a></td>
+            <td>精选茶包限购</td>
+            <td><span class="status-tag status-tag-pending">待审核</span></td>
+            <td>SKU-3317</td>
+            <td>精选茶包</td>
+            <td>80 件</td>
+            <td>上海匠采科技</td>
+            <td>2026-05-20 ~ 2026-08-20</td>
+            <td>玄阳(严安)</td>
+            <td>2026-05-17 11:00</td>
+            <td style="text-align:center;cursor:pointer;">⋯</td>
           </tr>
         </tbody>
       </table>
 
       <!-- 分页 -->
-      <div class="flex items-center justify-between px-4 py-4 border-t border-[#e5e6eb]">
-        <div class="text-sm text-[#86909c]">共 24 条，每页 10 条</div>
-        <div class="flex items-center gap-2">
-          <button class="pagination-btn"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
-          <span class="pagination-btn active">1</span>
-          <span class="pagination-btn">2</span>
-          <span class="pagination-btn">3</span>
-          <span class="text-[#86909c]">...</span>
-          <button class="pagination-btn"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
-        </div>
+      <div class="pagination-bar">
+        <span class="total">共 2 页</span>
+        <button class="page-btn" disabled>‹</button>
+        <input class="page-input" value="1" />
+        <span>/ 2</span>
+        <button class="page-btn">›</button>
+        <span class="page-size">20 条/页</span>
       </div>
     </div>
   </div>
+</div>
+
 </body>
 </html>
