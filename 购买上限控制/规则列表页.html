@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>购买上限控制 - 规则列表</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet" />
+  <style>
+    * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background: #f5f6fa; }
+    .stat-card { border-radius: 12px; background: #fff; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+    .rule-tag { padding: 2px 10px; border-radius: 4px; font-size: 12px; font-weight: 500; }
+    .rule-tag-regular { background: #e8f4fd; color: #1677ff; }
+    .rule-tag-activity { background: #fff7e6; color: #d46b08; }
+    .search-input { border: 1px solid #e5e6eb; border-radius: 6px; padding: 8px 12px; font-size: 14px; outline: none; transition: border 0.2s; }
+    .search-input:focus { border-color: #1677ff; box-shadow: 0 0 0 2px rgba(22,119,255,0.1); }
+    .table-header { background: #fafafa; border-bottom: 1px solid #e5e6eb; }
+    .table-header th { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #86909c; text-align: left; }
+    .table-row { border-bottom: 1px solid #f0f0f0; transition: background 0.15s; cursor: pointer; }
+    .table-row:hover { background: #f7f8fc; }
+    .table-row td { padding: 14px 16px; font-size: 14px; color: #1d2129; }
+    .btn-primary { background: #1677ff; color: #fff; border: none; border-radius: 6px; padding: 8px 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .btn-primary:hover { background: #4096ff; }
+    .btn-outline { background: #fff; color: #1d2129; border: 1px solid #e5e6eb; border-radius: 6px; padding: 8px 20px; font-size: 14px; cursor: pointer; transition: all 0.2s; }
+    .btn-outline:hover { border-color: #1677ff; color: #1677ff; }
+    .pagination-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e5e6eb; background: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; color: #4e5969; cursor: pointer; transition: all 0.15s; }
+    .pagination-btn:hover { border-color: #1677ff; color: #1677ff; }
+    .pagination-btn.active { background: #1677ff; border-color: #1677ff; color: #fff; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航 -->
+  <div class="flex items-center justify-between px-6 py-4 bg-white border-b border-[#e5e6eb]">
+    <div class="flex items-center gap-3">
+      <h1 class="text-lg font-semibold text-[#1d2129]">购买上限控制</h1>
+      <span class="text-xs text-[#86909c] bg-[#f2f3f5] px-2 py-0.5 rounded">规则配置</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <button class="btn-outline text-sm flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5 5-5M12 15V3"/></svg>
+        导出
+      </button>
+      <button class="btn-primary text-sm flex items-center gap-1.5">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        创建规则
+      </button>
+    </div>
+  </div>
+
+  <div class="p-6">
+    <!-- 统计卡片 -->
+    <div class="grid grid-cols-4 gap-4 mb-6">
+      <div class="stat-card">
+        <div class="text-sm text-[#86909c] mb-1">规则总数</div>
+        <div class="text-2xl font-semibold text-[#1d2129]">24</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-sm text-[#86909c] mb-1">已启用</div>
+        <div class="text-2xl font-semibold text-[#1677ff]">18</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-sm text-[#86909c] mb-1">已停用</div>
+        <div class="text-2xl font-semibold text-[#86909c]">6</div>
+      </div>
+      <div class="stat-card">
+        <div class="text-sm text-[#86909c] mb-1">即将过期（7天内）</div>
+        <div class="text-2xl font-semibold text-[#f77234]">3</div>
+      </div>
+    </div>
+
+    <!-- 搜索 / 筛选栏 -->
+    <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+      <div class="flex items-center gap-4 flex-wrap">
+        <div class="relative flex-1 min-w-[240px] max-w-md">
+          <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#86909c]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input class="search-input w-full pl-10" placeholder="搜索规则名称、商品 SKU..." />
+        </div>
+        <select class="search-input min-w-[130px]">
+          <option>全部规则类型</option>
+          <option>常规限购</option>
+          <option>活动限购</option>
+        </select>
+        <select class="search-input min-w-[130px]">
+          <option>全部状态</option>
+          <option>已启用</option>
+          <option>已停用</option>
+        </select>
+        <select class="search-input min-w-[130px]">
+          <option>全部门店范围</option>
+          <option>全部门店</option>
+          <option>指定门店</option>
+        </select>
+        <button class="btn-outline text-sm px-4">重置</button>
+        <button class="btn-primary text-sm px-4">查询</button>
+      </div>
+    </div>
+
+    <!-- 规则列表表格 -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      <table class="w-full">
+        <thead>
+          <tr class="table-header">
+            <th style="width: 32px;"><input type="checkbox" class="rounded" /></th>
+            <th>规则名称</th>
+            <th>商品 SKU</th>
+            <th>规则类型</th>
+            <th>控制策略</th>
+            <th>门店范围</th>
+            <th>状态</th>
+            <th>创建时间</th>
+            <th style="width: 130px;">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 行 1: 活动限购 -->
+          <tr class="table-row">
+            <td class="text-center"><input type="checkbox" class="rounded" /></td>
+            <td class="font-medium">暑期大促-矿泉水限购</td>
+            <td class="text-[#86909c]">SKU-7201</td>
+            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
+            <td>
+              <span class="text-sm">按总量 · 限 500 件</span>
+              <div class="text-xs text-[#86909c] mt-0.5">有效期: 2026-07-01 ~ 2026-08-31</div>
+            </td>
+            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
+            <td>
+              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
+            </td>
+            <td class="text-[#86909c] text-sm">2026-05-15 14:32</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
+                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
+              </div>
+            </td>
+          </tr>
+          <!-- 行 2: 常规限购-指定门店 -->
+          <tr class="table-row">
+            <td class="text-center"><input type="checkbox" class="rounded" /></td>
+            <td class="font-medium">毛巾类商品常规限购</td>
+            <td class="text-[#86909c]">SKU-1314</td>
+            <td><span class="rule-tag rule-tag-regular">常规限购</span></td>
+            <td>
+              <span class="text-sm">按周期 · 限 200 件 / 月</span>
+              <div class="text-xs text-[#86909c] mt-0.5">适用阶段: 开业</div>
+            </td>
+            <td>
+              <span class="rule-tag rule-tag-regular">杭州西湖店</span>
+            </td>
+            <td>
+              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
+            </td>
+            <td class="text-[#86909c] text-sm">2026-05-10 09:15</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
+                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
+              </div>
+            </td>
+          </tr>
+          <!-- 行 3: 活动限购-按系数 -->
+          <tr class="table-row">
+            <td class="text-center"><input type="checkbox" class="rounded" /></td>
+            <td class="font-medium">床品四件套活动限购</td>
+            <td class="text-[#86909c]">SKU-2099</td>
+            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
+            <td>
+              <span class="text-sm">按系数 · 房间数 × 3</span>
+              <div class="text-xs text-[#86909c] mt-0.5">有效期: 2026-06-01 ~ 2026-06-15</div>
+            </td>
+            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
+            <td>
+              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
+            </td>
+            <td class="text-[#86909c] text-sm">2026-05-08 16:42</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
+                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
+              </div>
+            </td>
+          </tr>
+          <!-- 行 4: 常规限购-已停用 -->
+          <tr class="table-row">
+            <td class="text-center"><input type="checkbox" class="rounded" /></td>
+            <td class="font-medium">高端洗护常规限购</td>
+            <td class="text-[#86909c]">SKU-4521</td>
+            <td><span class="rule-tag rule-tag-regular">常规限购</span></td>
+            <td>
+              <span class="text-sm">按固定数量 · 限 50 件</span>
+              <div class="text-xs text-[#86909c] mt-0.5">适用阶段: 筹建</div>
+            </td>
+            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
+            <td>
+              <span class="flex items-center text-sm"><span class="status-dot bg-[#c9cdd4]"></span>停用</span>
+            </td>
+            <td class="text-[#86909c] text-sm">2026-04-28 11:20</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
+                <button class="px-2 py-1 text-sm text-[#00b42a] hover:bg-[#e8f8e8] rounded">启用</button>
+              </div>
+            </td>
+          </tr>
+          <!-- 行 5: 活动限购-即将过期 -->
+          <tr class="table-row">
+            <td class="text-center"><input type="checkbox" class="rounded" /></td>
+            <td class="font-medium">茶包类商品活动限购</td>
+            <td class="text-[#86909c]">SKU-3317</td>
+            <td><span class="rule-tag rule-tag-activity">活动限购</span></td>
+            <td>
+              <span class="text-sm">按周期 · 限 100 件 / 日</span>
+              <div class="text-xs text-[#f77234] mt-0.5">⏰ 即将过期: 2026-05-22</div>
+            </td>
+            <td><span class="rule-tag rule-tag-regular">全部门店</span></td>
+            <td>
+              <span class="flex items-center text-sm"><span class="status-dot bg-[#00b42a]"></span>启用</span>
+            </td>
+            <td class="text-[#86909c] text-sm">2026-04-20 10:08</td>
+            <td>
+              <div class="flex items-center gap-1">
+                <button class="px-2 py-1 text-sm text-[#1677ff] hover:bg-[#e8f4fd] rounded">编辑</button>
+                <button class="px-2 py-1 text-sm text-[#f53f3f] hover:bg-[#fff1f0] rounded">停用</button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- 分页 -->
+      <div class="flex items-center justify-between px-4 py-4 border-t border-[#e5e6eb]">
+        <div class="text-sm text-[#86909c]">共 24 条，每页 10 条</div>
+        <div class="flex items-center gap-2">
+          <button class="pagination-btn"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg></button>
+          <span class="pagination-btn active">1</span>
+          <span class="pagination-btn">2</span>
+          <span class="pagination-btn">3</span>
+          <span class="text-[#86909c]">...</span>
+          <button class="pagination-btn"><svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

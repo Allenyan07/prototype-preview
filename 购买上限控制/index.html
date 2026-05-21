@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>购买上限控制 - 原型预览</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  
+  .nav-item {
+    cursor: pointer;
+    padding: 10px 16px;
+    border-left: 3px solid transparent;
+    transition: all 0.2s;
+    font-size: 14px;
+    color: #4e5969;
+  }
+  .nav-item:hover {
+    background: #f5f6fa;
+    color: #1d2129;
+  }
+  .nav-item.active {
+    background: #e8f4fd;
+    border-left-color: #1677ff;
+    color: #1677ff;
+    font-weight: 500;
+  }
+
+  #preview-frame {
+    width: 100%;
+    height: calc(100vh - 48px);
+    border: none;
+  }
+
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    border-right: 1px solid #e5e6eb;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .current-title {
+    font-size: 13px;
+    color: #86909c;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+</style>
+</head>
+<body>
+
+<div class="flex h-screen">
+  <!-- 侧边栏 -->
+  <div class="sidebar">
+    <!-- 标题 -->
+    <div class="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+      <div class="w-6 h-6 rounded bg-blue-500 flex items-center justify-center text-white text-xs font-bold">P</div>
+      <span class="font-semibold text-sm text-gray-800">购买上限控制</span>
+    </div>
+
+    <!-- 当前页面标题 -->
+    <div class="current-title" id="current-title">请选择一个页面</div>
+
+    <!-- 导航菜单 -->
+    <div class="flex-1 py-2" id="nav-list">
+      <!-- 由 JS 动态生成 -->
+    </div>
+
+    <!-- 底部 -->
+    <div class="p-3 border-t border-gray-100 text-xs text-gray-400">
+      购买上限控制 · 共 <span id="page-count">0</span> 个页面
+    </div>
+    
+    <!-- 返回顶部 -->
+    <a href="../" class="block p-3 border-t border-gray-100 text-xs text-blue-500 hover:text-blue-700">
+      ← 返回项目列表
+    </a>
+  </div>
+
+  <!-- 预览区域 -->
+  <div class="flex-1 flex flex-col">
+    <!-- 顶部工具栏 -->
+    <div class="h-12 flex items-center justify-between px-4 border-b border-gray-200 bg-gray-50">
+      <div class="flex items-center gap-2">
+        <button onclick="refreshFrame()" class="px-3 py-1.5 text-xs rounded border border-gray-200 hover:bg-white transition" title="刷新当前页面">
+          🔄 刷新
+        </button>
+        <button onclick="openNewTab()" class="px-3 py-1.5 text-xs rounded border border-gray-200 hover:bg-white transition" title="在新标签页打开">
+          ↗ 新窗口
+        </button>
+      </div>
+      <div class="text-xs text-gray-400">
+        提示：点击左侧菜单切换页面预览
+      </div>
+    </div>
+
+    <iframe id="preview-frame" src="about:blank"></iframe>
+  </div>
+</div>
+
+<script>
+// ===== 页面配置 =====
+// 新增原型时只需要在这里加一条记录
+const PAGES = [
+  {
+    id: "rule-list",
+    title: "规则列表页",
+    file: "规则列表页.html",
+    desc: "购买上限控制规则的列表展示与检索"
+  },
+  {
+    id: "rule-create",
+    title: "规则创建页",
+    file: "规则创建页.html",
+    desc: "创建新的购买上限控制规则"
+  }
+];
+
+// ===== 页面渲染 =====
+let currentPage = null;
+
+function renderNav() {
+  const list = document.getElementById('nav-list');
+  const count = document.getElementById('page-count');
+  
+  list.innerHTML = PAGES.map((page, index) => {
+    const isFirst = index === 0;
+    const idAttr = `nav-${page.id}`;
+    return `
+      <div class="nav-item${isFirst ? ' active' : ''}" 
+           id="${idAttr}"
+           onclick="switchPage('${page.id}')">
+        <div class="font-medium">${page.title}</div>
+        <div class="text-xs text-gray-400 mt-0.5">${page.desc || ''}</div>
+      </div>
+    `;
+  }).join('');
+
+  count.textContent = PAGES.length;
+
+  // 默认打开第一个
+  if (PAGES.length > 0) {
+    switchPage(PAGES[0].id);
+  }
+}
+
+function switchPage(pageId) {
+  const page = PAGES.find(p => p.id === pageId);
+  if (!page) return;
+
+  currentPage = page;
+
+  // 更新导航高亮
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById(`nav-${page.id}`);
+  if (navEl) navEl.classList.add('active');
+
+  // 更新标题
+  document.getElementById('current-title').textContent = `当前：${page.title}`;
+
+  // 加载页面
+  const frame = document.getElementById('preview-frame');
+  frame.src = page.file;
+}
+
+function refreshFrame() {
+  if (currentPage) {
+    const frame = document.getElementById('preview-frame');
+    frame.src = currentPage.file;
+  }
+}
+
+function openNewTab() {
+  if (currentPage) {
+    window.open(currentPage.file, '_blank');
+  } else {
+    alert('请先选择一个页面');
+  }
+}
+
+// ===== 启动 =====
+renderNav();
+</script>
+
+</body>
+</html>
