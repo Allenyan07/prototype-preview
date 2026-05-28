@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>购买上限控制 - 创建规则</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  * { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif; }
+  body { background: #f0f2f5; margin: 0; }
+
+  :root {
+    --kd-primary: #00a65a;
+    --kd-primary-hover: #00c16b;
+    --kd-border: #e0e2e6;
+    --kd-text: #333;
+    --kd-text-secondary: #999;
+    --kd-bg: #f0f2f5;
+    --kd-field-bg: #f7f8fa;
+  }
+
+  /* ===== 顶部导航栏 ===== */
+  .top-nav {
+    background: #fff; height: 48px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center;
+    justify-content: space-between; padding: 0 20px;
+  }
+  .top-nav-left { display: flex; align-items: center; gap: 24px; }
+  .top-nav-tenant { font-size: 13px; color: var(--kd-text); cursor: pointer; display: flex; align-items: center; gap: 4px; }
+  .top-nav-tenant::after { content: "▾"; font-size: 10px; color: #999; }
+  .top-nav-menu { display: flex; gap: 0; }
+  .top-nav-item { padding: 0 16px; font-size: 13px; color: #666; cursor: pointer; line-height: 48px; position: relative; transition: color 0.2s; }
+  .top-nav-item:hover { color: var(--kd-text); }
+  .top-nav-item.active { color: var(--kd-primary); font-weight: 500; }
+  .top-nav-item.active::after {
+    content: ""; position: absolute; bottom: 0; left: 16px; right: 16px;
+    height: 2px; background: var(--kd-primary);
+  }
+  .top-nav-right { display: flex; align-items: center; gap: 12px; }
+  .top-nav-search { border: 1px solid var(--kd-border); border-radius: 4px; padding: 4px 10px; font-size: 12px; width: 180px; outline: none; background: #f7f8fa; }
+  .top-nav-icon { width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #666; font-size: 16px; }
+  .top-nav-icon:hover { background: #f5f5f5; }
+  .top-nav-avatar { width: 28px; height: 28px; border-radius: 50%; background: #e8f8ef; display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--kd-primary); cursor: pointer; }
+
+  /* ===== 左侧导航 ===== */
+  .side-nav {
+    width: 56px; background: #2b2f3a; display: flex;
+    flex-direction: column; align-items: center; padding-top: 8px; gap: 4px;
+    flex-shrink: 0;
+  }
+  .side-nav-item { width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8a8f99; font-size: 18px; cursor: pointer; transition: all 0.15s; }
+  .side-nav-item:hover { background: #3a3f4a; color: #fff; }
+  .side-nav-item.active { background: var(--kd-primary); color: #fff; }
+
+  /* ===== 页面内容区 ===== */
+  .page-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ===== 面包屑 + 标签页 ===== */
+  .tabs-bar {
+    background: #fff; padding: 0 20px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center; height: 40px; gap: 0;
+  }
+  .breadcrumb { font-size: 12px; color: #999; display: flex; align-items: center; gap: 6px; margin-right: 20px; }
+  .breadcrumb a { color: #666; text-decoration: none; }
+  .breadcrumb a:hover { color: var(--kd-primary); }
+  .tab { padding: 0 16px; font-size: 13px; color: #666; cursor: pointer; line-height: 40px; position: relative; transition: color 0.2s; }
+  .tab:hover { color: var(--kd-text); }
+  .tab.active { color: var(--kd-primary); }
+  .tab.active::after { content: ""; position: absolute; bottom: 0; left: 16px; right: 16px; height: 2px; background: var(--kd-primary); }
+
+  /* ===== 页面操作栏 ===== */
+  .page-action-bar {
+    background: #fff; padding: 8px 20px;
+    border-bottom: 1px solid var(--kd-border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .page-action-bar .left { display: flex; align-items: center; gap: 8px; }
+  .page-action-bar .right { display: flex; align-items: center; gap: 4px; }
+
+  .kd-btn {
+    height: 28px; padding: 0 14px; border-radius: 4px;
+    font-size: 12px; cursor: pointer; display: inline-flex;
+    align-items: center; gap: 4px; border: none; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .kd-btn-primary { background: var(--kd-primary); color: #fff; }
+  .kd-btn-primary:hover { background: var(--kd-primary-hover); }
+  .kd-btn-primary:active { background: #008f4c; }
+  .kd-btn-primary.has-dropdown::after { content: "▾"; font-size: 10px; margin-left: 2px; }
+  .kd-btn-outline { background: #fff; color: var(--kd-text); border: 1px solid var(--kd-border); }
+  .kd-btn-outline:hover { border-color: var(--kd-primary); color: var(--kd-primary); }
+
+  .page-icon-btn {
+    width: 26px; height: 26px; border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    border: none; background: none; cursor: pointer;
+    color: #999; font-size: 14px;
+  }
+  .page-icon-btn:hover { background: #f5f5f5; color: var(--kd-primary); }
+
+  /* ===== 表单区域 ===== */
+  .form-body {
+    flex: 1; overflow-y: auto; padding: 16px 20px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+
+  /* ===== 折叠区块 ===== */
+  .form-section {
+    background: #fff; border: 1px solid var(--kd-border);
+    border-radius: 4px;
+  }
+  .form-section-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 16px; cursor: pointer;
+    border-bottom: 1px solid var(--kd-border);
+    font-size: 13px; font-weight: 500; color: var(--kd-text);
+    user-select: none;
+  }
+  .form-section-header .arrow { font-size: 10px; color: #999; transition: transform 0.2s; }
+  .form-section-header .arrow.collapsed { transform: rotate(-90deg); }
+  .form-section-body { padding: 16px; }
+  .form-section-body.collapsed { display: none; }
+
+  /* ===== 5列表单布局 ===== */
+  .form-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px 16px; }
+  .form-field { display: flex; flex-direction: column; gap: 4px; }
+  .form-field.colspan-2 { grid-column: span 2; }
+  .form-field.colspan-3 { grid-column: span 3; }
+  .form-field.colspan-4 { grid-column: span 4; }
+  .form-field.colspan-5 { grid-column: 1 / -1; }
+
+  .form-label { font-size: 12px; color: #666; display: flex; align-items: center; gap: 2px; }
+  .form-label .required { color: #f53f3f; }
+  .form-field-inner {
+    height: 30px; border: 1px solid var(--kd-border);
+    border-radius: 4px; padding: 0 10px; font-size: 13px; outline: none;
+    display: flex; align-items: center; background: #fff;
+    transition: border-color 0.15s;
+  }
+  .form-field-inner:focus-within { border-color: var(--kd-primary); }
+  .form-field-inner input, .form-field-inner select {
+    border: none; outline: none; flex: 1; height: 100%;
+    font-size: 13px; background: transparent; color: var(--kd-text);
+  }
+  .form-field-inner select { cursor: pointer; }
+  .form-field-inner.readonly { background: var(--kd-field-bg); color: #999; }
+  .form-field-inner .dropdown-icon { font-size: 10px; color: #999; margin-left: auto; }
+
+  /* ===== 规则类型卡片 ===== */
+  .rule-type-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .rule-type-card {
+    border: 1px solid var(--kd-border); border-radius: 4px;
+    padding: 14px; cursor: pointer; transition: all 0.15s;
+  }
+  .rule-type-card:hover { border-color: var(--kd-primary); }
+  .rule-type-card.active { border-color: var(--kd-primary); background: #f0faf4; }
+  .rule-type-card .icon-wrap { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+  /* ===== 子区块 ===== */
+  .sub-field { background: var(--kd-field-bg); border-radius: 4px; padding: 14px; margin-top: 10px; border: 1px solid #eee; }
+
+  /* ===== 门店选择面板 ===== */
+  .store-picker { border: 1px solid var(--kd-border); border-radius: 4px; padding: 12px; background: var(--kd-field-bg); }
+  .store-list { max-height: 180px; overflow-y: auto; font-size: 13px; }
+  .store-item { display: flex; align-items: center; gap: 8px; padding: 6px 8px; cursor: pointer; border-radius: 4px; transition: background 0.1s; }
+  .store-item:hover { background: #f0f0f0; }
+  .store-item input[type="radio"] { accent-color: var(--kd-primary); }
+
+  /* ===== 底部栏 ===== */
+  /* ===== 策略分组（蓝色竖线） ===== */
+  .strategy-group {
+    border-left: 3px solid #1677ff; padding-left: 14px;
+    margin-bottom: 16px;
+  }
+  .strategy-group:last-child { margin-bottom: 0; }
+  .strategy-group-title {
+    font-size: 13px; font-weight: 500; color: var(--kd-text);
+    margin-bottom: 10px;
+  }
+  .strategy-row {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 8px; flex-wrap: wrap;
+  }
+  .strategy-row:last-child { margin-bottom: 0; }
+  .strategy-label {
+    font-size: 13px; color: #666; white-space: nowrap;
+    min-width: 64px;
+  }
+  .strategy-radio-group {
+    display: flex; align-items: center; gap: 16px;
+  }
+  .strategy-radio-group label {
+    display: flex; align-items: center; gap: 6px;
+    cursor: pointer; font-size: 13px; color: var(--kd-text);
+  }
+  .strategy-radio-group input[type="radio"] {
+    accent-color: var(--kd-primary);
+  }
+  .strategy-select {
+    height: 28px; border: 1px solid var(--kd-border);
+    border-radius: 4px; padding: 0 10px; font-size: 13px;
+    outline: none; background: #fff; color: var(--kd-text);
+    cursor: pointer; min-width: 88px;
+  }
+  .strategy-select:focus { border-color: var(--kd-primary); }
+  .strategy-input {
+    height: 28px; border: 1px solid var(--kd-border);
+    border-radius: 4px; padding: 0 10px; font-size: 13px;
+    outline: none; background: #fff; color: var(--kd-text);
+    width: 100px; text-align: center;
+  }
+  .strategy-input:focus { border-color: var(--kd-primary); }
+  .strategy-unit {
+    font-size: 13px; color: var(--kd-text); margin-left: 2px;
+  }
+  /* ===== 计算结果提示栏 ===== */
+  .calc-hint {
+    background: #e8f4fd; border-radius: 4px; padding: 10px 14px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; color: #333; margin-top: 8px;
+  }
+  .calc-hint .icon { font-size: 16px; color: #1677ff; }
+  .calc-hint .result { color: #1677ff; font-weight: 500; }
+  /* ===== 分组分隔线 ===== */
+  .strategy-divider {
+    border: none; border-top: 1px solid #eee; margin: 12px 0;
+  }
+
+  /* ===== 门店阶段标签 ===== */
+  .stage-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 3px;
+    font-size: 12px; font-weight: 500; line-height: 1.5;
+  }
+  .stage-prep { background: #fff7e6; color: #d46b08; }
+  .stage-open { background: #e8f8ef; color: #00a65a; }
+
+  .bottom-bar {
+    background: #fff; border-top: 1px solid var(--kd-border);
+    padding: 10px 20px; display: flex; align-items: center;
+    justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== 顶部导航栏 ===== -->
+<div class="top-nav">
+  <div class="top-nav-left">
+    <span class="top-nav-tenant">亚朵供应链测试</span>
+    <div class="top-nav-menu">
+      <span class="top-nav-item">首页</span>
+      <span class="top-nav-item">应用</span>
+      <span class="top-nav-item">库存管理</span>
+      <span class="top-nav-item active">销售管理</span>
+    </div>
+  </div>
+  <div class="top-nav-right">
+    <input class="top-nav-search" placeholder="派单" />
+    <span class="top-nav-icon">💡</span>
+    <span class="top-nav-icon">❓</span>
+    <span class="top-nav-icon" style="position:relative">
+      🔔
+      <span style="position:absolute;top:-2px;right:-4px;background:#f53f3f;color:#fff;font-size:10px;border-radius:8px;padding:0 4px;line-height:14px;min-width:14px;text-align:center;">99+</span>
+    </span>
+    <span class="top-nav-avatar">玄</span>
+  </div>
+</div>
+
+<!-- ===== 主体区域 ===== -->
+<div style="display:flex;height:calc(100vh - 48px);">
+  <!-- 左侧导航 -->
+  <div class="side-nav">
+    <div class="side-nav-item">📋</div>
+    <div class="side-nav-item active">📦</div>
+    <div class="side-nav-item">📊</div>
+    <div class="side-nav-item">📄</div>
+    <div class="side-nav-item">⚙️</div>
+    <div class="side-nav-item" style="margin-top:auto;">◀</div>
+  </div>
+
+  <!-- 页面内容 -->
+  <div class="page-content">
+    <!-- 面包屑 + 标签页 -->
+    <div class="tabs-bar">
+      <div class="tab active">购买上限控制</div>
+    </div>
+
+    <!-- 页面操作栏 -->
+    <div class="page-action-bar">
+      <div class="left">
+        <button class="kd-btn kd-btn-primary">保存</button>
+        <button class="kd-btn kd-btn-primary has-dropdown">提交</button>
+        <button class="kd-btn kd-btn-primary has-dropdown">提交并新增</button>
+        <button class="kd-btn kd-btn-outline">退出</button>
+      </div>
+      <div class="right">
+        <button class="page-icon-btn" title="偏好设置">⚙</button>
+        <button class="page-icon-btn" title="帮助">❓</button>
+        <button class="page-icon-btn" title="全屏">⛶</button>
+      </div>
+    </div>
+
+    <!-- 表单主体 -->
+    <div class="form-body">
+      <!-- ===== 基础信息 ===== -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <span class="arrow">▼</span>
+          <span>基础信息</span>
+        </div>
+        <div class="form-section-body">
+          <div class="form-grid">
+            <div class="form-field">
+              <label class="form-label">规则编码</label>
+              <div class="form-field-inner readonly" id="ruleCodeField" style="color:#333;background:#f7f8fa;max-width:220px;">
+                <span id="ruleCodeDisplay" style="font-family:monospace;font-size:13px;">XG-20260522-0001</span>
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">规则名称 <span class="required">*</span></label>
+              <div class="form-field-inner">
+                <input placeholder="例如：暑期大促矿泉水限购" />
+              </div>
+            </div>
+            <div class="form-field">
+              <label class="form-label">商品 SKU <span class="required">*</span></label>
+              <div class="form-field-inner">
+                <select>
+                  <option value="">请选择商品 SKU</option>
+                  <option>SKU-7201 - 矿泉水 500ml</option>
+                  <option>SKU-1314 - 纯棉毛巾</option>
+                  <option>SKU-2099 - 床品四件套</option>
+                  <option>SKU-4521 - 高端洗护套装</option>
+                  <option>SKU-3317 - 精选茶包</option>
+                </select>
+                <span class="dropdown-icon">▾</span>
+              </div>
+            </div>
+            <div class="form-field colspan-5">
+              <label class="form-label">规则描述</label>
+              <div class="form-field-inner" style="height:auto;min-height:30px;padding:6px 10px;">
+                <input style="height:auto;min-height:18px;" placeholder="填写规则说明，帮助运营人员理解此规则的用途（选填）" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 规则类型 ===== -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <span class="arrow">▼</span>
+          <span>规则类型 <span style="color:#f53f3f;">*</span></span>
+        </div>
+        <div class="form-section-body">
+          <div class="text-xs text-[#999] mb-3">常规限购和活动限购不互斥，门店下单时都会校验</div>
+          <div class="rule-type-grid">
+            <div class="rule-type-card active" onclick="switchRuleType(this, 0)">
+              <div class="flex items-start gap-3">
+                <div class="icon-wrap" style="background:#e8f4fd;">
+                  <svg class="w-4 h-4" style="color:#1677ff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                </div>
+                <div>
+                  <div class="text-sm font-medium" style="color:var(--kd-text);">常规限购</div>
+                  <div class="text-xs" style="color:#999;margin-top:2px;">针对门店日常运营配置，可设置适用门店范围及门店阶段</div>
+                </div>
+              </div>
+            </div>
+            <div class="rule-type-card" onclick="switchRuleType(this, 1)">
+              <div class="flex items-start gap-3">
+                <div class="icon-wrap" style="background:#fff7e6;">
+                  <svg class="w-4 h-4" style="color:#d46b08;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+                </div>
+                <div>
+                  <div class="text-sm font-medium" style="color:var(--kd-text);">活动限购</div>
+                  <div class="text-xs" style="color:#999;margin-top:2px;">针对特定营销活动配置，适用全部门店，需设置活动有效期</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 适用范围 ===== -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <span class="arrow">▼</span>
+          <span>适用范围</span>
+        </div>
+        <div class="form-section-body">
+          <!-- 常规限购适用范围 -->
+          <div id="regularScope">
+            <div class="form-field" style="border:none;padding:0;">
+              <label class="form-label" style="margin-bottom:8px;">门店范围 <span class="required">*</span></label>
+              <div style="display:flex;gap:20px;align-items:center;">
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
+                  <input type="radio" name="storeScopeType" value="all" checked onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 全部门店
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
+                  <input type="radio" name="storeScopeType" value="specified" onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 指定门店
+                </label>
+              </div>
+            </div>
+            <!-- 指定门店：搜索框 + 放大镜 -->
+            <div id="specifiedStorePanel" style="display:none;margin-top:10px;">
+              <div style="display:flex;align-items:center;gap:0;border:1px solid #d9d9d9;border-radius:4px;width:360px;padding:0 8px;background:#fff;">
+                <input id="storeSearchInput" type="text" placeholder="搜索门店名称..." 
+                  style="flex:1;border:none;outline:none;padding:6px 4px;font-size:13px;background:transparent;" readonly onfocus="this.blur()" />
+                <span style="cursor:pointer;padding:4px;color:#999;font-size:16px;user-select:none;" title="选择门店">🔍</span>
+              </div>
+              </div>
+          </div>
+          <!-- 活动限购适用范围 -->
+          <div id="activityScope" style="display:none;">
+            <div style="display:flex;align-items:center;gap:12px;padding:8px 0;">
+              <span style="font-size:13px;color:#666;">门店范围</span>
+              <span style="display:inline-block;padding:2px 10px;border-radius:3px;font-size:12px;background:#e8f4fd;color:#1677ff;">全部门店</span>
+              <span style="font-size:11px;color:#999;">活动限购默认适用全部门店</span>
+            </div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eee;">
+              <div style="display:flex;align-items:center;gap:0;">
+                <label style="flex-shrink:0;width:100px;font-size:13px;color:#333;font-weight:500;">
+                  活动期间 <span style="color:#f00;">*</span>
+                </label>
+                <div class="form-field-inner" style="width:200px;">
+                  <input type="date" value="2026-06-01" />
+                </div>
+                <span style="padding:0 10px;font-size:13px;color:#666;user-select:none;">至</span>
+                <div class="form-field-inner" style="width:200px;">
+                  <input type="date" value="2026-06-30" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 控制策略 ===== -->
+      <div class="form-section">
+        <div class="form-section-header">
+          <span class="arrow">▼</span>
+          <span>控制策略 <span style="color:#f53f3f;">*</span></span>
+        </div>
+        <div class="form-section-body">
+          <!-- ===== 分组1：限制维度 ===== -->
+          <div class="strategy-group">
+            <div class="strategy-group-title">限制维度</div>
+            <div class="strategy-row">
+              <span class="strategy-label">门店阶段</span>
+              <div class="strategy-radio-group">
+                <label><input type="radio" name="storeStageType" value="all" checked onchange="onStoreStageChange()" /> 全部</label>
+                <label id="storeStageSeparateOption"><input type="radio" name="storeStageType" value="separate" onchange="onStoreStageChange()" /> 按阶段配置</label>
+              </div>
+            </div>
+          </div>
+
+          <hr class="strategy-divider" />
+
+          <!-- ===== 分组2：计算方式（全部） ===== -->
+          <div class="strategy-group" id="calcAll">
+            <div class="strategy-group-title">计算方式</div>
+            <div class="strategy-row">
+              <span class="strategy-label">控制方式</span>
+              <div class="strategy-radio-group">
+                <label><input type="radio" name="dimensionType" value="total" checked onchange="onDimensionChange('all')" /> 按总量</label>
+                <label><input type="radio" name="dimensionType" value="period" onchange="onDimensionChange('all')" /> 按周期</label>
+              </div>
+            </div>
+            <div class="strategy-row" id="periodUnitRowAll" style="display:none;">
+              <span class="strategy-label">周期单位</span>
+              <select class="strategy-select">
+                <option value="每日">每日</option>
+                <option value="每周">每周</option>
+                <option value="每月" selected>每月</option>
+                <option value="每季">每季</option>
+                <option value="每年">每年</option>
+              </select>
+            </div>
+            <div class="strategy-row">
+              <span class="strategy-label">计算方式</span>
+              <div class="strategy-radio-group">
+                <label><input type="radio" name="calcType" value="fixed" checked onchange="onCalcChange('all')" /> 按固定数量</label>
+                <label><input type="radio" name="calcType" value="coefficient" onchange="onCalcChange('all')" /> 按系数</label>
+              </div>
+            </div>
+            <!-- 按固定数量 -->
+            <div class="strategy-row" id="fixedInputRowAll">
+              <input class="strategy-input" type="number" value="50" placeholder="输入数量" oninput="onCoefficientChange('all')" />
+              <span class="strategy-unit">件</span>
+            </div>
+            <!-- 按系数 -->
+            <div id="coefficientInputsAll" style="display:none;">
+              <div class="strategy-row">
+                <span class="strategy-label">基数</span>
+                <div class="strategy-radio-group">
+                  <label><input type="radio" name="baseTypeAll" value="房间数" checked onchange="onCoefficientChange('all')" /> 房间数</label>
+                  <label><input type="radio" name="baseTypeAll" value="床数" onchange="onCoefficientChange('all')" /> 床数</label>
+                </div>
+              </div>
+              <div class="strategy-row">
+                <span class="strategy-label">系数</span>
+                <input class="strategy-input" type="number" value="0.1" step="0.01" placeholder="系数值" oninput="onCoefficientChange('all')" />
+              </div>
+              <div class="calc-hint" id="calcHintAll">
+                <span class="icon">🧮</span>
+                <span>限购数量 = <span id="baseLabelAll">房间数</span>（<span id="baseValueAll">120</span>） × 系数（<span id="coefficientValueAll">0.1</span>） = </span>
+                <span class="result" id="calcResultAll">12件</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== 按阶段配置：筹建 + 开业 ===== -->
+          <div id="calcSeparate" style="display:none;">
+            <!-- 筹建 -->
+            <div class="strategy-group" style="border-left-color:#fa8c16;">
+              <div class="strategy-group-title">
+                <span class="stage-badge stage-prep">筹建</span>
+                <span style="font-weight:400;font-size:12px;color:#999;margin-left:8px;">门店在筹建期间下单的限购规则</span>
+              </div>
+              <div class="strategy-row">
+                <span class="strategy-label">控制方式</span>
+                <div class="strategy-radio-group">
+                  <label><input type="radio" name="dimensionTypePrep" value="total" checked onchange="onDimensionChange('prep')" /> 按总量</label>
+                  <label><input type="radio" name="dimensionTypePrep" value="period" onchange="onDimensionChange('prep')" /> 按周期</label>
+                </div>
+              </div>
+              <div class="strategy-row" id="periodUnitRowPrep" style="display:none;">
+                <span class="strategy-label">周期单位</span>
+                <select class="strategy-select">
+                  <option value="每日">每日</option>
+                  <option value="每周">每周</option>
+                  <option value="每月" selected>每月</option>
+                  <option value="每季">每季</option>
+                  <option value="每年">每年</option>
+                </select>
+              </div>
+              <div class="strategy-row">
+                <span class="strategy-label">计算方式</span>
+                <div class="strategy-radio-group">
+                  <label><input type="radio" name="calcTypePrep" value="fixed" checked onchange="onCalcChange('prep')" /> 按固定数量</label>
+                  <label><input type="radio" name="calcTypePrep" value="coefficient" onchange="onCalcChange('prep')" /> 按系数</label>
+                </div>
+              </div>
+              <div class="strategy-row" id="fixedInputRowPrep">
+                <input class="strategy-input" type="number" value="30" placeholder="输入数量" oninput="onCoefficientChange('prep')" />
+                <span class="strategy-unit">件</span>
+              </div>
+              <div id="coefficientInputsPrep" style="display:none;">
+                <div class="strategy-row">
+                  <span class="strategy-label">基数</span>
+                  <div class="strategy-radio-group">
+                    <label><input type="radio" name="baseTypePrep" value="房间数" checked onchange="onCoefficientChange('prep')" /> 房间数</label>
+                    <label><input type="radio" name="baseTypePrep" value="床数" onchange="onCoefficientChange('prep')" /> 床数</label>
+                  </div>
+                </div>
+                <div class="strategy-row">
+                  <span class="strategy-label">系数</span>
+                  <input class="strategy-input" type="number" value="0.5" step="0.01" placeholder="系数值" oninput="onCoefficientChange('prep')" />
+                </div>
+                <div class="calc-hint" id="calcHintPrep">
+                  <span class="icon">🧮</span>
+                  <span>限购数量 = <span id="baseLabelPrep">房间数</span>（<span id="baseValuePrep">120</span>） × 系数（<span id="coefficientValuePrep">0.5</span>） = </span>
+                  <span class="result" id="calcResultPrep">60件</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="height:10px;"></div>
+
+            <!-- 开业 -->
+            <div class="strategy-group" style="border-left-color:#00a65a;">
+              <div class="strategy-group-title">
+                <span class="stage-badge stage-open">开业</span>
+                <span style="font-weight:400;font-size:12px;color:#999;margin-left:8px;">门店在开业日期之后下单的限购规则</span>
+              </div>
+              <div class="strategy-row">
+                <span class="strategy-label">控制方式</span>
+                <div class="strategy-radio-group">
+                  <label><input type="radio" name="dimensionTypeOpen" value="total" checked onchange="onDimensionChange('open')" /> 按总量</label>
+                  <label><input type="radio" name="dimensionTypeOpen" value="period" onchange="onDimensionChange('open')" /> 按周期</label>
+                </div>
+              </div>
+              <div class="strategy-row" id="periodUnitRowOpen" style="display:none;">
+                <span class="strategy-label">周期单位</span>
+                <select class="strategy-select">
+                  <option value="每日">每日</option>
+                  <option value="每周">每周</option>
+                  <option value="每月" selected>每月</option>
+                  <option value="每季">每季</option>
+                  <option value="每年">每年</option>
+                </select>
+              </div>
+              <div class="strategy-row">
+                <span class="strategy-label">计算方式</span>
+                <div class="strategy-radio-group">
+                  <label><input type="radio" name="calcTypeOpen" value="fixed" checked onchange="onCalcChange('open')" /> 按固定数量</label>
+                  <label><input type="radio" name="calcTypeOpen" value="coefficient" onchange="onCalcChange('open')" /> 按系数</label>
+                </div>
+              </div>
+              <div class="strategy-row" id="fixedInputRowOpen">
+                <input class="strategy-input" type="number" value="100" placeholder="输入数量" oninput="onCoefficientChange('open')" />
+                <span class="strategy-unit">件</span>
+              </div>
+              <div id="coefficientInputsOpen" style="display:none;">
+                <div class="strategy-row">
+                  <span class="strategy-label">基数</span>
+                  <div class="strategy-radio-group">
+                    <label><input type="radio" name="baseTypeOpen" value="房间数" checked onchange="onCoefficientChange('open')" /> 房间数</label>
+                    <label><input type="radio" name="baseTypeOpen" value="床数" onchange="onCoefficientChange('open')" /> 床数</label>
+                  </div>
+                </div>
+                <div class="strategy-row">
+                  <span class="strategy-label">系数</span>
+                  <input class="strategy-input" type="number" value="0.2" step="0.01" placeholder="系数值" oninput="onCoefficientChange('open')" />
+                </div>
+                <div class="calc-hint" id="calcHintOpen">
+                  <span class="icon">🧮</span>
+                  <span>限购数量 = <span id="baseLabelOpen">房间数</span>（<span id="baseValueOpen">120</span>） × 系数（<span id="coefficientValueOpen">0.2</span>） = </span>
+                  <span class="result" id="calcResultOpen">24件</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      </div>
+  </div>
+</div>
+
+<script>
+  function switchRuleType(el, idx) {
+    document.querySelectorAll('.rule-type-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    const isActivity = idx === 1;
+    document.getElementById('regularScope').style.display = isActivity ? 'none' : 'block';
+    document.getElementById('activityScope').style.display = isActivity ? 'block' : 'none';
+
+    // 活动限购时：门店阶段强制"全部"，隐藏"按阶段配置"
+    const separateOption = document.getElementById('storeStageSeparateOption');
+    if (isActivity) {
+      document.querySelector('input[name="storeStageType"][value="all"]').checked = true;
+      separateOption.style.display = 'none';
+      onStoreStageChange();
+    } else {
+      separateOption.style.display = '';
+    }
+  }
+
+// ===== 控制策略联动 =====
+
+// 门店阶段切换
+function onStoreStageChange() {
+  const isSeparate = document.querySelector('input[name="storeStageType"]:checked').value === 'separate';
+  document.getElementById('calcAll').style.display = isSeparate ? 'none' : 'block';
+  document.getElementById('calcSeparate').style.display = isSeparate ? 'block' : 'none';
+}
+
+// 限制维度切换（带上下文：all / prep / open）
+function onDimensionChange(context) {
+  const dimName = context === 'all' ? 'dimensionType' : 'dimensionType' + context.charAt(0).toUpperCase() + context.slice(1);
+  const rowId = 'periodUnitRow' + (context === 'all' ? 'All' : context.charAt(0).toUpperCase() + context.slice(1));
+  const isPeriod = document.querySelector(`input[name="${dimName}"]:checked`).value === 'period';
+  const row = document.getElementById(rowId);
+  if (row) row.style.display = isPeriod ? 'flex' : 'none';
+}
+
+// 计算方式切换（带上下文：all / prep / open）
+function onCalcChange(context) {
+  const prefix = context === 'all' ? '' : context.charAt(0).toUpperCase() + context.slice(1);
+  const calcName = context === 'all' ? 'calcType' : 'calcType' + prefix;
+  const fixedId = 'fixedInputRow' + (context === 'all' ? 'All' : prefix);
+  const coeffId = 'coefficientInputs' + (context === 'all' ? 'All' : prefix);
+
+  const isCoefficient = document.querySelector(`input[name="${calcName}"]:checked`).value === 'coefficient';
+  document.getElementById(fixedId).style.display = isCoefficient ? 'none' : 'flex';
+  document.getElementById(coeffId).style.display = isCoefficient ? 'block' : 'none';
+  onCoefficientChange(context);
+}
+
+// 计算结果实时更新（带上下文）
+function onCoefficientChange(context) {
+  const prefix = context === 'all' ? '' : context.charAt(0).toUpperCase() + context.slice(1);
+  const calcName = context === 'all' ? 'calcType' : 'calcType' + prefix;
+  const isCoefficient = document.querySelector(`input[name="${calcName}"]:checked`)?.value === 'coefficient';
+  if (!isCoefficient) return;
+
+  const baseName = context === 'all' ? 'baseTypeAll' : 'baseType' + prefix;
+  const baseType = document.querySelector(`input[name="${baseName}"]:checked`)?.value || '房间数';
+  const coeffInput = document.querySelector(`#fixedInputRow${context === 'all' ? 'All' : prefix} + * input[type="number"],
+    #coefficientInputs${context === 'all' ? 'All' : prefix} input[type="number"]`);
+  const coefficient = parseFloat(coeffInput?.value || 0);
+
+  const baseCount = 120;
+
+  const baseLabel = document.getElementById('baseLabel' + (context === 'all' ? 'All' : prefix));
+  const baseValue = document.getElementById('baseValue' + (context === 'all' ? 'All' : prefix));
+  const coeffValue = document.getElementById('coefficientValue' + (context === 'all' ? 'All' : prefix));
+  const calcResult = document.getElementById('calcResult' + (context === 'all' ? 'All' : prefix));
+
+  if (baseLabel) baseLabel.textContent = baseType;
+  if (baseValue) baseValue.textContent = baseCount;
+  if (coeffValue) coeffValue.textContent = coefficient;
+
+  const result = Math.ceil(baseCount * coefficient);
+  if (calcResult) calcResult.textContent = result + '件';
+}
+
+// ===== 门店范围切换（单选按钮） =====
+function onStoreScopeChange() {
+  const isSpecified = document.querySelector('input[name="storeScopeType"]:checked').value === 'specified';
+  const panel = document.getElementById('specifiedStorePanel');
+  if (panel) panel.style.display = isSpecified ? 'block' : 'none';
+}
+
+// ===== 门店选择弹窗（放大镜） =====
+document.addEventListener('DOMContentLoaded', function () {
+  const magnifier = document.querySelector('#specifiedStorePanel span[title="选择门店"]');
+  const searchInput = document.getElementById('storeSearchInput');
+  if (magnifier) {
+    magnifier.addEventListener('click', function () {
+      alert('弹出门店选择弹窗');
+    });
+  }
+  if (searchInput) {
+    searchInput.addEventListener('click', function () {
+      alert('弹出门店选择弹窗');
+    });
+  }
+
+  // 初始化控制策略
+  onDimensionChange('all');
+  onCalcChange('all');
+  onCoefficientChange('all');
+  onStoreStageChange();
+});
+</script>
+<!-- 标注工具（测试） -->
+<script src="../annotation-tool.js"></script>
+</body>
+</html>
