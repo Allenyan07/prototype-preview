@@ -81,16 +81,7 @@
   .form-value-readonly { font-size: 13px; color: var(--kd-text); padding: 6px 10px; background: var(--kd-field-bg); border-radius: 4px; min-height: 20px; line-height: 1.5; }
   .form-value-readonly.code { font-family: "SF Mono", "Consolas", monospace; letter-spacing: 0.5px; color: #666; background: #f0f0f0; }
 
-  /* ===== 规则类型卡片 ===== */
-  .rule-type-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .rule-type-card { border: 1px solid var(--kd-border); border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; background: #fff; }
-  .rule-type-card:hover { border-color: var(--kd-primary); }
-  .rule-type-card.active { border-color: var(--kd-primary); background: var(--kd-primary-light); position: relative; }
-  .rule-type-card.active::after { content: "✓"; position: absolute; top: 6px; right: 8px; font-size: 12px; color: var(--kd-primary); font-weight: bold; }
-  .rule-type-card .icon-wrap { width: 32px; height: 32px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .flex-row { display: flex; align-items: flex-start; gap: 12px; }
-
-  /* ===== 适用范围 ===== */
+/* ===== 适用范围 ===== */
   .scope-radio-group { display: flex; gap: 20px; align-items: center; }
   .scope-radio-group label { display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 13px; color: #333; }
   .scope-radio-group input[type="radio"] { accent-color: var(--kd-primary); }
@@ -295,35 +286,6 @@
             </div>
           </div>
 
-          <!-- 规则类型 -->
-          <div style="border-top:1px solid #f0f0f0;margin-bottom:16px;padding-top:12px;">
-            <div style="font-size:12px;color:#666;margin-bottom:8px;">规则类型 <span class="required">*</span></div>
-            <div class="rule-type-grid">
-              <div class="rule-type-card active" onclick="onRuleTypeChange(this, 'normal')">
-                <div class="flex-row">
-                  <div class="icon-wrap" style="background:#e8f4fd;">
-                    <svg class="w-4 h-4" style="color:#1677ff;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                  </div>
-                  <div>
-                    <div style="font-size:13px;font-weight:500;color:var(--kd-text);">常规限购</div>
-                    <div style="font-size:11px;color:#999;margin-top:2px;">针对门店日常运营配置，可设置适用门店范围及门店阶段</div>
-                  </div>
-                </div>
-              </div>
-              <div class="rule-type-card" onclick="onRuleTypeChange(this, 'activity')">
-                <div class="flex-row">
-                  <div class="icon-wrap" style="background:#fff7e6;">
-                    <svg class="w-4 h-4" style="color:#d46b08;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
-                  </div>
-                  <div>
-                    <div style="font-size:13px;font-weight:500;color:var(--kd-text);">活动限购</div>
-                    <div style="font-size:11px;color:#999;margin-top:2px;">针对特定营销活动配置，适用全部门店，需设置活动有效期</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- 适用范围 -->
           <div style="border-top:1px solid #f0f0f0;margin-bottom:16px;padding-top:12px;">
             <div style="font-size:12px;color:#666;margin-bottom:8px;">适用范围</div>
@@ -339,7 +301,6 @@
               <input class="form-input" type="date" value="2026-06-01" />
               <span class="date-sep">至</span>
               <input class="form-input" type="date" value="2026-06-30" />
-              <span style="font-size:11px;color:#999;margin-left:10px;">（活动限购时需设置）</span>
             </div>
           </div>
 
@@ -556,31 +517,6 @@ function onApplyTypeChange(sel) {
   }
 }
 
-// 规则类型切换：常规限购 vs 活动限购
-function onRuleTypeChange(el, type) {
-  // 切换卡片 active 状态
-  document.querySelectorAll('.rule-type-card').forEach(function(c) {
-    c.classList.remove('active');
-  });
-  el.classList.add('active');
-
-  if (type === 'normal') {
-    // 常规限购：隐藏日期范围，显示指定门店选项，显示按阶段配置
-    document.getElementById('docDateRange').style.display = 'none';
-    document.getElementById('docSpecifiedScope').style.display = 'inline';
-    document.getElementById('docStoreSearch').style.display = 'none';
-    document.getElementById('docStageSeparateOption').style.display = 'inline';
-  } else {
-    // 活动限购：显示日期范围，隐藏指定门店选项，隐藏按阶段配置
-    document.getElementById('docDateRange').style.display = 'flex';
-    document.getElementById('docSpecifiedScope').style.display = 'none';
-    document.getElementById('docStoreSearch').style.display = 'none';
-    document.getElementById('docStageSeparateOption').style.display = 'none';
-    // 强制选中"全部"门店阶段
-    document.querySelector('input[name="docStageType"][value="all"]').checked = true;
-  }
-}
-
 // 控制方式切换：按总量 vs 按周期
 function onDimensionChange(context) {
   var unitRow;
@@ -663,5 +599,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<script src="annotation-tool.js"></script>
 </body>
 </html>
