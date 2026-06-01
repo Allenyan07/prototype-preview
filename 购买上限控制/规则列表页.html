@@ -198,9 +198,6 @@
   }
   .status-tag-active { background: #e8f8ef; color: #00a65a; }
   .status-tag-inactive { background: #f5f5f5; color: #999; }
-  .rule-type-tag { display:inline-block;padding:1px 8px;border-radius:3px;font-size:12px; }
-  .rule-type-tag-normal { background:#e8f4fd; color:#1677ff; }
-  .rule-type-tag-activity { background:#fff7e6; color:#d46b08; }
 
   .col-config-btn {
     display: inline-flex; align-items: center; justify-content: center;
@@ -327,7 +324,6 @@
             <th>#</th>
             <th>规则编码</th>
             <th>规则名称</th>
-            <th>规则类型</th>
             <th>规则状态</th>
             <th>商品 SKU</th>
             <th>商品名称</th>
@@ -348,8 +344,7 @@
             <td>1</td>
             <td><a class="link-blue" href="规则创建页.html">XG-20260522-0001</a></td>
             <td>暑期大促矿泉水限购</td>
-            <td><span class="rule-type-tag rule-type-tag-activity">活动限购</span></td>
-            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td class="status-tag status-tag-active">已启用</td>
             <td>SKU-7201</td>
             <td>矿泉水 500ml</td>
             <td>全部门店</td>
@@ -365,8 +360,7 @@
             <td>2</td>
             <td><a class="link-blue" href="规则创建页.html">XG-20260521-0002</a></td>
             <td>纯棉毛巾限购规则</td>
-            <td><span class="rule-type-tag rule-type-tag-normal">常规限购</span></td>
-            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td class="status-tag status-tag-active">已启用</td>
             <td>SKU-1314</td>
             <td>纯棉毛巾</td>
             <td>全部门店</td>
@@ -382,8 +376,7 @@
             <td>3</td>
             <td><a class="link-blue" href="规则创建页.html">XG-20260519-0007</a></td>
             <td>床品备货限购</td>
-            <td><span class="rule-type-tag rule-type-tag-normal">常规限购</span></td>
-            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td class="status-tag status-tag-active">已启用</td>
             <td>SKU-2099</td>
             <td>床品四件套</td>
             <td>指定门店</td>
@@ -399,8 +392,7 @@
             <td>4</td>
             <td><a class="link-blue" href="规则创建页.html">XG-20260518-0002</a></td>
             <td>高端洗护套装限购</td>
-            <td><span class="rule-type-tag rule-type-tag-activity">活动限购</span></td>
-            <td><span class="status-tag status-tag-inactive">已禁用</span></td>
+            <td class="status-tag status-tag-inactive">已禁用</td>
             <td>SKU-4521</td>
             <td>高端洗护套装</td>
             <td>全部门店</td>
@@ -416,8 +408,7 @@
             <td>5</td>
             <td><a class="link-blue" href="规则创建页.html">XG-20260517-0005</a></td>
             <td>精选茶包限购</td>
-            <td><span class="rule-type-tag rule-type-tag-normal">常规限购</span></td>
-            <td><span class="status-tag status-tag-active">已启用</span></td>
+            <td class="status-tag status-tag-active">已启用</td>
             <td>SKU-3317</td>
             <td>精选茶包</td>
             <td>指定门店</td>
@@ -444,5 +435,6 @@
   </div>
 </div>
 
+<script src="annotation-tool.js"></script>
 </body>
 </html>
