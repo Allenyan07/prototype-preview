@@ -68,6 +68,7 @@
   .form-field.colspan-5 { grid-column: span 5; }
   .form-label { font-size: 12px; color: #666; font-weight: 400; }
   .form-label .required { color: #f53f3f; }
+  .required { color: #f53f3f; }
 
   /* ===== 表单控件 ===== */
   .form-input { border: 1px solid #d9d9d9; border-radius: 4px; padding: 6px 10px; font-size: 13px; color: var(--kd-text); outline: none; background: #fff; transition: border-color 0.2s; }
@@ -234,14 +235,6 @@
               <input class="form-input code" value="暂存" readonly />
             </div>
             <div class="form-field">
-              <label class="form-label">申请类型 <span class="required">*</span></label>
-              <select class="form-select" onchange="onApplyTypeChange(this)">
-                <option value="new" selected>新增规则</option>
-                <option value="edit">修改规则</option>
-                <option value="disable">禁用规则</option>
-              </select>
-            </div>
-            <div class="form-field">
               <label class="form-label">创建人</label>
               <div class="form-value-readonly">玄阳(严安)</div>
             </div>
@@ -268,6 +261,14 @@
           <!-- 基础信息 -->
           <div class="form-grid" style="margin-bottom:16px;">
             <div class="form-field">
+              <label class="form-label">申请类型 <span class="required">*</span></label>
+              <select class="form-select" onchange="onApplyTypeChange(this)">
+                <option value="new" selected>新增规则</option>
+                <option value="edit">修改规则</option>
+                <option value="disable">禁用规则</option>
+              </select>
+            </div>
+            <div class="form-field">
               <label class="form-label">规则编码 <span class="required">*</span></label>
               <div id="ruleCodeContainer">
                 <input class="form-input code" id="ruleCodeInput" value="XG-20260522-0001" readonly style="width:100%;" />
@@ -286,21 +287,30 @@
             </div>
           </div>
 
-          <!-- 适用范围 -->
+<!-- 适用范围 -->
           <div style="border-top:1px solid #f0f0f0;margin-bottom:16px;padding-top:12px;">
             <div style="font-size:12px;color:#666;margin-bottom:8px;">适用范围</div>
-            <div class="scope-radio-group">
-              <label><input type="radio" name="docStoreScope" value="all" checked onchange="document.getElementById('docStoreSearch').style.display='none'" /> 全部门店</label>
-              <span id="docSpecifiedScope"><label><input type="radio" name="docStoreScope" value="specified" onchange="document.getElementById('docStoreSearch').style.display='flex'" /> 指定门店</label></span>
+
+            <!-- 适用商品 -->
+            <div style="margin-bottom:12px;padding-left:12px;border-left:2px solid #e8e8e8;">
+              <div style="font-size:12px;color:#333;margin-bottom:6px;">适用商品 <span class="required">*</span></div>
+              <div class="store-search-box" style="width:360px;">
+                <input type="text" placeholder="搜索商品名称..." readonly onfocus="this.blur()" />
+                <span class="magnifier" onclick="alert('弹出商品选择弹窗')">🔍</span>
+              </div>
             </div>
-            <div class="store-search-box" id="docStoreSearch" style="display:none;">
-              <input type="text" placeholder="搜索门店名称..." readonly onfocus="this.blur()" />
-              <span class="magnifier" onclick="alert('弹出门店选择弹窗')">🔍</span>
-            </div>
-            <div class="date-range" id="docDateRange" style="display:none;">
-              <input class="form-input" type="date" value="2026-06-01" />
-              <span class="date-sep">至</span>
-              <input class="form-input" type="date" value="2026-06-30" />
+
+            <!-- 适用门店 -->
+            <div style="padding-left:12px;border-left:2px solid #e8e8e8;">
+              <div style="font-size:12px;color:#333;margin-bottom:6px;">适用门店 <span class="required">*</span></div>
+              <div class="scope-radio-group">
+                <label><input type="radio" name="docStoreScope" value="all" checked onchange="document.getElementById('docStoreSearch').style.display='none'" /> 全部门店</label>
+                <span id="docSpecifiedScope"><label><input type="radio" name="docStoreScope" value="specified" onchange="document.getElementById('docStoreSearch').style.display='flex'" /> 指定门店</label></span>
+              </div>
+              <div class="store-search-box" id="docStoreSearch" style="display:none;">
+                <input type="text" placeholder="搜索门店名称..." readonly onfocus="this.blur()" />
+                <span class="magnifier" onclick="alert('弹出门店选择弹窗')">🔍</span>
+              </div>
             </div>
           </div>
 
