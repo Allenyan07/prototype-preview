@@ -133,6 +133,7 @@
 
   .form-label { font-size: 12px; color: #666; display: flex; align-items: center; gap: 2px; }
   .form-label .required { color: #f53f3f; }
+  .required { color: #f53f3f; }
   .form-field-inner {
     height: 30px; border: 1px solid var(--kd-border);
     border-radius: 4px; padding: 0 10px; font-size: 13px; outline: none;
@@ -314,60 +315,49 @@
                 <input placeholder="例如：暑期大促矿泉水限购" />
               </div>
             </div>
-            <div class="form-field">
-              <label class="form-label">商品 SKU <span class="required">*</span></label>
-              <div class="form-field-inner">
-                <select>
-                  <option value="">请选择商品 SKU</option>
-                  <option>SKU-7201 - 矿泉水 500ml</option>
-                  <option>SKU-1314 - 纯棉毛巾</option>
-                  <option>SKU-2099 - 床品四件套</option>
-                  <option>SKU-4521 - 高端洗护套装</option>
-                  <option>SKU-3317 - 精选茶包</option>
-                </select>
-                <span class="dropdown-icon">▾</span>
-              </div>
-            </div>
-            <div class="form-field colspan-5">
-              <label class="form-label">规则描述</label>
-              <div class="form-field-inner" style="height:auto;min-height:30px;padding:6px 10px;">
-                <input style="height:auto;min-height:18px;" placeholder="填写规则说明，帮助运营人员理解此规则的用途（选填）" />
-              </div>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== 适用范围 ===== -->
+<!-- ===== 适用范围 ===== -->
       <div class="form-section">
         <div class="form-section-header">
           <span class="arrow">▼</span>
           <span>适用范围</span>
         </div>
         <div class="form-section-body">
-          <!-- 常规限购适用范围 -->
-          <div id="regularScope">
-            <div class="form-field" style="border:none;padding:0;">
-              <label class="form-label" style="margin-bottom:8px;">门店范围 <span class="required">*</span></label>
-              <div style="display:flex;gap:20px;align-items:center;">
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
-                  <input type="radio" name="storeScopeType" value="all" checked onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 全部门店
-                </label>
-                <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
-                  <input type="radio" name="storeScopeType" value="specified" onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 指定门店
-                </label>
-              </div>
+
+          <!-- 适用商品 -->
+          <div style="margin-bottom:12px;padding-left:12px;border-left:2px solid #e8e8e8;">
+            <div style="font-size:12px;color:#333;margin-bottom:6px;">适用商品 <span class="required">*</span></div>
+            <div style="display:flex;align-items:center;gap:0;border:1px solid #d9d9d9;border-radius:4px;width:360px;padding:0 8px;background:#fff;">
+              <input type="text" placeholder="搜索商品名称..." readonly onfocus="this.blur()" style="flex:1;border:none;outline:none;padding:6px 4px;font-size:13px;background:transparent;" />
+              <span style="cursor:pointer;padding:4px;color:#999;font-size:16px;user-select:none;" onclick="alert('弹出商品选择弹窗')">🔍</span>
+            </div>
+          </div>
+
+          <!-- 适用门店 -->
+          <div style="padding-left:12px;border-left:2px solid #e8e8e8;">
+            <div style="font-size:12px;color:#333;margin-bottom:6px;">适用门店 <span class="required">*</span></div>
+            <div style="display:flex;gap:20px;align-items:center;">
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
+                <input type="radio" name="storeScopeType" value="all" checked onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 全部门店
+              </label>
+              <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;color:#333;">
+                <input type="radio" name="storeScopeType" value="specified" onchange="onStoreScopeChange()" style="accent-color:#00a65a;" /> 指定门店
+              </label>
             </div>
             <!-- 指定门店：搜索框 + 放大镜 -->
             <div id="specifiedStorePanel" style="display:none;margin-top:10px;">
               <div style="display:flex;align-items:center;gap:0;border:1px solid #d9d9d9;border-radius:4px;width:360px;padding:0 8px;background:#fff;">
-                <input id="storeSearchInput" type="text" placeholder="搜索门店名称..." 
+                <input id="storeSearchInput" type="text" placeholder="搜索门店名称..."
                   style="flex:1;border:none;outline:none;padding:6px 4px;font-size:13px;background:transparent;" readonly onfocus="this.blur()" />
                 <span style="cursor:pointer;padding:4px;color:#999;font-size:16px;user-select:none;" title="选择门店">🔍</span>
               </div>
               </div>
           </div>
-          </div>
+
+        </div>
       </div>
 
       <!-- ===== 控制策略 ===== -->
